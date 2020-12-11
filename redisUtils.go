@@ -1,7 +1,11 @@
 package main
 
-import "context"
-import "github.com/go-redis/redis/v8"
+import (
+	"context"
+	"time"
+
+	"github.com/go-redis/redis/v8"
+)
 
 var ctx = context.Background()
 
@@ -25,5 +29,6 @@ func getTargetSids() []string {
 
 func insertWinner(clientSid string) {
 	rdb := getClient()
-	rdb.ZAdd(ctx, "winners", &redis.Z{Score: 0, Member: clientSid})
+	ts := float64(time.Now().Unix())
+	rdb.ZAddNX(ctx, "winners", &redis.Z{Score: ts, Member: clientSid})
 }

@@ -32,3 +32,12 @@ func insertWinner(clientSid string) {
 	ts := float64(time.Now().Unix())
 	rdb.ZAddNX(ctx, "winners", &redis.Z{Score: ts, Member: clientSid})
 }
+
+func getWinners() []string {
+	rdb := getClient()
+	winners, err := rdb.ZRevRange(ctx, "winners", 0, -1).Result()
+	if err != nil {
+		panic(err)
+	}
+	return winners
+}

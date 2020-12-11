@@ -41,6 +41,15 @@ func main() {
 
 	router.Use(cors.Default()) // TODO: limit origin
 
+	router.GET("/winners", func(c *gin.Context) {
+		winners := getWinners()
+		fmt.Println("===============================")
+		fmt.Println(winners)
+		c.JSON(200, gin.H{
+			"winners": winners,
+		})
+	})
+
 	router.POST("/api", func(c *gin.Context) {
 		var json bingoResponse
 		var status bool

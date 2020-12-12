@@ -10,9 +10,12 @@ import (
 )
 
 type bingoResponse struct {
-	Token     string   `json:"token" binding:"required"`
-	Sids      []string `json:"sids" binding:"required"`
-	ClientSid string   `json:"clientSid" binding:"required"`
+	Token string   `json:"token" binding:"required"`
+	Sids  []string `json:"sids" binding:"required"`
+}
+
+type targetsidResponse struct {
+	Sid string `json:"sid" binding:"required"`
 }
 
 func testEq(a, b []string) bool {
@@ -36,15 +39,53 @@ func testEq(a, b []string) bool {
 }
 
 func main() {
-	fmt.Println()
 	router := gin.Default()
 
 	router.Use(cors.Default()) // TODO: limit origin
 
+	// TODO
+	tokenMapping := make(map[string]string)
+	tokenMapping["0416"] = "0416"
+	tokenMapping["0432"] = "0432"
+
+	router.GET("/token/:token", func(c *gin.Context) {
+		var res bool
+		token := c.Param("token")
+		if tokenMapping[token] == "" {
+			res = false
+		} else {
+			res = true
+		}
+		c.JSON(200, gin.H{
+			"status": res,
+		})
+
+	})
+
+	router.GET("/targetsids", func(c *gin.Context) {
+		targetSids := getTargetSids()
+		c.JSON(200, gin.H{
+			"targetSids": targetSids,
+		})
+	})
+
+	router.PUT("/targetsids", func(c *gin.Context) {
+		var json targetsidResponse
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		insertTargetSid(json.Sid)
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
+	router.DELETE("/targetsids", func(c *gin.Context) {
+		clearTargetSids()
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	router.GET("/winners", func(c *gin.Context) {
 		winners := getWinners()
-		fmt.Println("===============================")
-		fmt.Println(winners)
 		c.JSON(200, gin.H{
 			"winners": winners,
 		})
@@ -57,7 +98,9 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		if json.Token != "fake-token" {
+
+		clientSid := tokenMapping[json.Token]
+		if clientSid == "" {
 			c.JSON(400, gin.H{"message": "Bad token"})
 		}
 
@@ -72,7 +115,7 @@ func main() {
 		ok := testEq(intersec, json.Sids)
 		if ok {
 			status = true
-			insertWinner(json.ClientSid)
+			insertWinner(clientSid)
 		} else {
 			status = false
 		}

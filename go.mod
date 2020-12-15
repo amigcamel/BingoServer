@@ -1,4 +1,4 @@
-module github.com/my/repo
+module github.com/amigcamel/BingoServer
 
 go 1.14
 

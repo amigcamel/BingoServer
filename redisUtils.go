@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -10,10 +12,14 @@ import (
 var ctx = context.Background()
 
 func getClient() *redis.Client {
+	db, err := strconv.Atoi(os.Getenv("BINGO_REDIS_DB"))
+	if err != nil {
+		panic(err)
+	}
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
+		Addr:     os.Getenv("BINGO_REDIS_ADDR"),
 		Password: "",
-		DB:       4,
+		DB:       db,
 	})
 	return rdb
 }

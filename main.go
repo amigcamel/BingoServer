@@ -43,21 +43,11 @@ func main() {
 
 	router.Use(cors.Default()) // TODO: limit origin
 
-	// TODO
-	tokenMapping := make(map[string]string)
-	tokenMapping["0416"] = "0416"
-	tokenMapping["0432"] = "0432"
-
 	router.GET("/token/:token", func(c *gin.Context) {
-		var res bool
 		token := c.Param("token")
-		if tokenMapping[token] == "" {
-			res = false
-		} else {
-			res = true
-		}
+		sid := getSidFromToken(token)
 		c.JSON(200, gin.H{
-			"status": res,
+			"sid": sid,
 		})
 
 	})
@@ -99,7 +89,7 @@ func main() {
 			return
 		}
 
-		clientSid := tokenMapping[json.Token]
+		clientSid := getSidFromToken(json.Token)
 		if clientSid == "" {
 			c.JSON(400, gin.H{"message": "Bad token"})
 		}

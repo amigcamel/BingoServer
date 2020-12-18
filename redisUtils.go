@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"strconv"
 	"time"
@@ -9,17 +10,27 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+type userProfile struct {
+	Sid string `json:"sid"`
+}
+
 var ctx = context.Background()
 
-func getClient() *redis.Client {
-	db, err := strconv.Atoi(os.Getenv("BINGO_REDIS_DB"))
+func getClient(db ...string) *redis.Client {
+	var dbStr string
+	if len(db) == 1 {
+		dbStr = db[0]
+	} else {
+		dbStr = os.Getenv("BINGO_REDIS_DB")
+	}
+	dbInt, err := strconv.Atoi(dbStr)
 	if err != nil {
 		panic(err)
 	}
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("BINGO_REDIS_ADDR"),
 		Password: "",
-		DB:       db,
+		DB:       dbInt,
 	})
 	return rdb
 }
@@ -68,4 +79,22 @@ func getWinners() []interface{} {
 		output = append(output, arr)
 	}
 	return output
+}
+
+func getSidFromToken(token string) string {
+	var up userProfile
+	var sid string
+	rdb := getClient("0")
+	defer rdb.Close()
+	res, err := rdb.Get(ctx, token).Result()
+
+	if err == redis.Nil {
+		sid = ""
+	} else if err != nil {
+		panic(err)
+	} else {
+		json.Unmarshal([]byte(res), &up)
+		sid = up.Sid
+	}
+	return sid
 }

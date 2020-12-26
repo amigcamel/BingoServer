@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -95,7 +95,7 @@ func main() {
 		}
 
 		allSids := getTargetSids()
-		fmt.Println(json.Sids)
+		log.Println(json.Sids)
 		res := intersect.Simple(json.Sids, allSids)
 		var intersec []string
 		for _, value := range res.([]interface{}) {

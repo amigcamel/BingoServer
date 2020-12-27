@@ -43,6 +43,13 @@ func main() {
 
 	router.Use(cors.Default()) // TODO: limit origin
 
+	// websocket hub
+	hub := newHub()
+	go hub.run()
+	router.GET("/state", func(c *gin.Context) {
+		serveWs(hub, c)
+	})
+
 	router.GET("/token/:token", func(c *gin.Context) {
 		token := c.Param("token")
 		sid := getSidFromToken(token)
@@ -106,6 +113,7 @@ func main() {
 		if ok {
 			status = true
 			insertWinner(clientSid)
+			hub.broadcast <- []byte("newWinner")
 		} else {
 			status = false
 		}
@@ -114,5 +122,6 @@ func main() {
 			"status": status,
 		})
 	})
+
 	router.Run(":8000")
 }

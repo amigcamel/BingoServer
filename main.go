@@ -83,6 +83,7 @@ func main() {
 
 	router.GET("/winners", func(c *gin.Context) {
 		winners := getWinners()
+		log.Println(winners)
 		c.JSON(200, gin.H{
 			"winners": winners,
 		})

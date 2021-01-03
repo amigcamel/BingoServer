@@ -45,9 +45,9 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
+			log.Println(string(message[:]))
 			switch {
 			case bytes.Equal(message, []byte("newWinner")):
-				log.Println(string(message[:]))
 				output := []byte(`{"update":1}`)
 				broadcast(h, output)
 			case bytes.Equal(message, []byte("countdown")):

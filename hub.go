@@ -50,6 +50,9 @@ func (h *Hub) run() {
 				log.Println(string(message[:]))
 				output := []byte(`{"update":1}`)
 				broadcast(h, output)
+			case bytes.Equal(message, []byte("countdown")):
+				output := []byte(`{"countdown":1}`)
+				broadcast(h, output)
 			}
 		}
 	}

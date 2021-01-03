@@ -3,16 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 )
-
-type userProfile struct {
-	Sid string `json:"sid"`
-}
 
 var ctx = context.Background()
 
@@ -82,19 +79,9 @@ func getWinners() []interface{} {
 }
 
 func getSidFromToken(token string) string {
-	var up userProfile
-	var sid string
-	rdb := getClient("0")
-	defer rdb.Close()
-	res, err := rdb.Get(ctx, token).Result()
-
-	if err == redis.Nil {
-		sid = ""
-	} else if err != nil {
-		panic(err)
-	} else {
-		json.Unmarshal([]byte(res), &up)
-		sid = up.Sid
-	}
+	m := make(map[string]string)
+	res, _ := ioutil.ReadFile("./data.json")
+	json.Unmarshal([]byte(res), &m)
+	sid := m[token]
 	return sid
 }

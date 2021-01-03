@@ -99,3 +99,4 @@ tags
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/osx,vscode,linux,vim,go,direnv
+data.json

@@ -88,6 +88,11 @@ func main() {
 		})
 	})
 
+	router.DELETE("/winners", func(c *gin.Context) {
+		clearWinners()
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	router.POST("/api", func(c *gin.Context) {
 		var json bingoResponse
 		var status bool

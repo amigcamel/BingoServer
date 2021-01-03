@@ -55,6 +55,12 @@ func clearTargetSids() {
 	rdb.Del(ctx, "targetsids")
 }
 
+func clearWinners() {
+	rdb := getClient()
+	defer rdb.Close()
+	rdb.Del(ctx, "winners")
+}
+
 func insertWinner(clientSid string) {
 	rdb := getClient()
 	defer rdb.Close()

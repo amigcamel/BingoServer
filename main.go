@@ -43,6 +43,9 @@ func main() {
 
 	router.Use(cors.Default()) // TODO: limit origin
 
+	// user map
+	userMap := getUserMap()
+
 	// websocket hub
 	hub := newHub()
 	go hub.run()
@@ -52,9 +55,10 @@ func main() {
 
 	router.GET("/token/:token", func(c *gin.Context) {
 		token := c.Param("token")
-		sid := getSidFromToken(token)
+		u := userMap[token]
 		c.JSON(200, gin.H{
-			"sid": sid,
+			"sid":  u.Sid,
+			"name": u.Name,
 		})
 
 	})
@@ -102,8 +106,8 @@ func main() {
 			return
 		}
 
-		clientSid := getSidFromToken(json.Token)
-		if clientSid == "" {
+		u := userMap[json.Token]
+		if u.Sid == "" {
 			c.JSON(400, gin.H{"message": "Bad token"})
 		}
 
@@ -118,7 +122,7 @@ func main() {
 		ok := testEq(intersec, json.Sids)
 		if ok {
 			status = true
-			insertWinner(clientSid)
+			insertWinner(u.Sid)
 			hub.broadcast <- []byte("newWinner")
 		} else {
 			status = false

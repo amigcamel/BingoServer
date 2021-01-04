@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
@@ -82,12 +80,4 @@ func getWinners() []interface{} {
 		output = append(output, arr)
 	}
 	return output
-}
-
-func getSidFromToken(token string) string {
-	m := make(map[string]string)
-	res, _ := ioutil.ReadFile("./data.json")
-	json.Unmarshal([]byte(res), &m)
-	sid := m[token]
-	return sid
 }

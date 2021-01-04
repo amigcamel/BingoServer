@@ -11,7 +11,7 @@ type user struct {
 }
 
 func getUserMap() map[string]user {
-	data, _ := ioutil.ReadFile("./data.json")
+	data, _ := ioutil.ReadFile("/data/data.json")
 	m := make(map[string]user)
 	json.Unmarshal([]byte(data), &m)
 	return m

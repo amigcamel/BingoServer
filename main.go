@@ -49,7 +49,7 @@ func main() {
 	// websocket hub
 	hub := newHub()
 	go hub.run()
-	router.GET("/state", func(c *gin.Context) {
+	router.GET("/ws", func(c *gin.Context) {
 		serveWs(hub, c)
 	})
 

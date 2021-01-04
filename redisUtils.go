@@ -33,7 +33,7 @@ func getClient(db ...string) *redis.Client {
 func insertTargetSid(sid string) {
 	rdb := getClient()
 	defer rdb.Close()
-	ts := float64(time.Now().Unix())
+	ts := float64(time.Now().UnixNano() / 1e6)
 	rdb.ZAddNX(ctx, "targetsids", &redis.Z{Score: ts, Member: sid})
 }
 
@@ -62,7 +62,7 @@ func clearWinners() {
 func insertWinner(clientSid string) {
 	rdb := getClient()
 	defer rdb.Close()
-	ts := float64(time.Now().Unix())
+	ts := float64(time.Now().UnixNano() / 1e6)
 	rdb.ZAddNX(ctx, "winners", &redis.Z{Score: ts, Member: clientSid})
 }
 

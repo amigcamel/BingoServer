@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 )
 
@@ -35,6 +36,7 @@ func broadcast(h *Hub, message []byte) {
 }
 
 func (h *Hub) run() {
+	gameStatus := 0 // 0: not started; 1: started
 	for {
 		select {
 		case client := <-h.register:
@@ -52,6 +54,18 @@ func (h *Hub) run() {
 				broadcast(h, output)
 			case bytes.Equal(message, []byte("countdown")):
 				output := []byte(`{"countdown":1}`)
+				gameStatus = 1
+				broadcast(h, output)
+			case bytes.Equal(message, []byte("gameStart")):
+				gameStatus = 1
+				output := []byte(fmt.Sprintf(`{"gameStatus":%d}`, gameStatus))
+				broadcast(h, output)
+			case bytes.Equal(message, []byte("gameNotStart")):
+				gameStatus = 0
+				output := []byte(fmt.Sprintf(`{"gameStatus":%d}`, gameStatus))
+				broadcast(h, output)
+			case bytes.Equal(message, []byte("gameStatus")):
+				output := []byte(fmt.Sprintf(`{"gameStatus":%d}`, gameStatus))
 				broadcast(h, output)
 			}
 		}

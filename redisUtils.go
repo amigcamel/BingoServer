@@ -59,11 +59,16 @@ func clearWinners() {
 	rdb.Del(ctx, "winners")
 }
 
-func insertWinner(clientSid string) {
+func insertWinner(clientSid string) int64 {
 	rdb := getClient()
 	defer rdb.Close()
 	ts := float64(time.Now().UnixNano() / 1e6)
 	rdb.ZAddNX(ctx, "winners", &redis.Z{Score: ts, Member: clientSid})
+	rank, err := rdb.ZRank(ctx, "winners", clientSid).Result()
+	if err != nil {
+		panic(err)
+	}
+	return rank
 }
 
 func getWinners() []interface{} {

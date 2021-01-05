@@ -101,6 +101,7 @@ func main() {
 	router.POST("/api", func(c *gin.Context) {
 		var json bingoResponse
 		var status bool
+		var rank int64
 		if err := c.ShouldBindJSON(&json); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -122,7 +123,7 @@ func main() {
 		ok := testEq(intersec, json.Sids)
 		if ok {
 			status = true
-			insertWinner(u.Sid)
+			rank = insertWinner(u.Sid)
 			hub.broadcast <- []byte("newWinner")
 		} else {
 			status = false
@@ -130,6 +131,7 @@ func main() {
 
 		c.JSON(200, gin.H{
 			"status": status,
+			"rank":   rank,
 		})
 	})
 
